@@ -1,0 +1,30 @@
+# Ignorar pastas bin e obj que contém arquivos de compilação
+**/bin/
+**/obj/
+
+# Ignorar arquivos de configuração do Visual Studio
+.vs/
+*.user
+*.suo
+
+# Ignorar pacotes NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos de backup
+*.bak
+
+# Ignorar diretórios do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignorar todos os arquivos gerados automaticamente pelo Visual Studio
+*.ide/
+
+# Ignorar arquivos de lock de dependências
+project.lock.json
+project.fragment.lock.json

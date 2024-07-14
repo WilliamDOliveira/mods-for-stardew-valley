@@ -48,11 +48,9 @@ public class IDigWhereIWant : Mod
                 // Cria a animação de uso da enxada e escava o chão
                 hoe.DoFunction(Game1.currentLocation, (int)tilePosition.X * Game1.tileSize, (int)tilePosition.Y * Game1.tileSize, 0, Game1.player);
 
-                // Reduz a energia do jogador de acordo com a fórmula da classe Hoe
-                if (!hoe.isEfficient)
-                {
-                    Game1.player.Stamina -= 2 * Game1.player.toolPower - (float)Game1.player.FarmingLevel * 0.1f;
-                }
+                // Calcula a energia a ser consumida e garante que seja positiva
+                float energyToConsume = Math.Max(0, 2 - (float)Game1.player.FarmingLevel * 0.1f);
+                Game1.player.Stamina -= energyToConsume;
 
                 // Restaura a posição original do personagem
                 Game1.player.Position = originalPosition;

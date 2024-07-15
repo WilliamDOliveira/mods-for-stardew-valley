@@ -32,42 +32,57 @@ namespace AutoCatchFishMod
 
                     // Determine the fish to catch based on game mechanics
                     float millisecondsAfterNibble = 0f; // Default value
-                    string bait = fishingRod.attachments[0]?.Name ?? "None"; // Get bait name or "None"
-                    int waterDepth = fishingRod.attachments[1]?.Stack ?? 0; // Default water depth
+                    string bait = fishingRod.attachments?[0]?.Name ?? "None"; // Get bait name or "None"
+                    int waterDepth = fishingRod.attachments?[1]?.Stack ?? 0; // Default water depth
                     double baitPotency = 0.4; // Default bait potency
                     Vector2 bobberTile = fishingRod.bobber.Value; // Get bobber position
-                    string locationName = Game1.currentLocation.Name;
+                    string locationName = Game1.currentLocation?.Name ?? "Unknown";
 
-                    StardewValley.Object fishItem = Game1.currentLocation.getFish(millisecondsAfterNibble, bait, waterDepth, player, baitPotency, bobberTile, locationName) as StardewValley.Object;
+                    StardewValley.Object fishItem = Game1.currentLocation?.getFish(millisecondsAfterNibble, bait, waterDepth, player, baitPotency, bobberTile, locationName) as StardewValley.Object;
 
                     if (fishItem != null && fishItem.ParentSheetIndex != -1)
                     {
                         int fishSize = Game1.random.Next(1, 10); // Random fish size
 
-                        // Determine fish quality
-                        int fishQuality = 0; // Default fish quality (normal)
-                        int fishingLevel = player.FishingLevel;
-                        double qualityModifier = 0.03 * fishingLevel; // Each level increases chance by 3%
+                        // Determine if the fish is in the no-quality list
+                        int[] noQualityItems = { 132, 133, 134, 167, 168, 169, 170, 171, 172, 344, 793, 794, 795, 796, 797, 798 }; // Include IDs for different types of jellies
 
-                        if (Game1.random.NextDouble() < 0.25 + qualityModifier) // Chance for silver quality
+                        int fishQuality = 0; // Default fish quality (normal)
+                        if (!Array.Exists(noQualityItems, id => id == fishItem.ParentSheetIndex))
                         {
-                            fishQuality = 1;
-                        }
-                        if (Game1.random.NextDouble() < 0.10 + qualityModifier) // Chance for gold quality
-                        {
-                            fishQuality = 2;
-                        }
-                        if (Game1.random.NextDouble() < 0.02 + qualityModifier) // Chance for iridium quality
-                        {
-                            fishQuality = 4;
+                            // Determine fish quality
+                            int fishingLevel = player.FishingLevel;
+                            double qualityModifier = 0.03 * fishingLevel; // Each level increases chance by 3%
+
+                            if (Game1.random.NextDouble() < 0.25 + qualityModifier) // Chance for silver quality
+                            {
+                                fishQuality = 1;
+                            }
+                            if (Game1.random.NextDouble() < 0.10 + qualityModifier) // Chance for gold quality
+                            {
+                                fishQuality = 2;
+                            }
+                            if (Game1.random.NextDouble() < 0.02 + qualityModifier) // Chance for iridium quality
+                            {
+                                fishQuality = 4;
+                            }
                         }
 
                         int fishDifficulty = 50; // Default fish difficulty
 
                         fishItem.Quality = fishQuality; // Set the fish quality
 
+                        // Handle jelly items by their string IDs
+                        string fishId = fishItem.ParentSheetIndex switch
+                        {
+                            132 => "RiverJelly",
+                            133 => "CaveJelly",
+                            134 => "SeaJelly",
+                            _ => fishItem.ParentSheetIndex.ToString()
+                        };
+
                         fishingRod.pullFishFromWater(
-                            fishItem.ParentSheetIndex.ToString(),
+                            fishId,
                             fishSize,
                             fishQuality,
                             fishDifficulty,
@@ -78,6 +93,7 @@ namespace AutoCatchFishMod
                             false, // isBossFish
                             1      // numCaught
                         );
+
                         Game1.showGlobalMessage($"You caught a {fishItem.DisplayName}!");
 
                         fishingRod.fishCaught = true;
